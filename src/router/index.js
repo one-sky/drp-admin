@@ -5,6 +5,7 @@ import Login from '../views/login';
 import Center from '../views/center';
 import Distributor from '../views/distributor';
 import BrandDetail from '../views/brand/brandDetail';
+import AgentBrand from '../views/brand/agentBrand';
 import Category from '../views/category';
 import Product from '../views/product';
 import Order from '../views/order';
@@ -32,6 +33,10 @@ export default new Router({
         {
           path: 'brandDetail',
           component: BrandDetail
+        },
+        {
+          path: 'agentBrand',
+          component: AgentBrand
         },
         {
           path: 'category',
