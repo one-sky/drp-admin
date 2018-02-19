@@ -1,0 +1,70 @@
+
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+
+/* remember to define focus styles! */
+:focus {
+    outline: 0;
+}
+
+/* remember to highlight inserts somehow! */
+ins {
+    text-decoration: none;
+}
+del {
+    text-decoration: line-through;
+}
+  
+/* tables still need 'cellspacing="0"' in the markup */
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+html{
+    font-size:62.5%;
+}
+
+body{
+    min-width:1200px;
+}
+  
+* {
+    margin:0;
+    padding:0;
+}
+a{
+    text-decoration: none;
+    color:#000;
+}
+
+div{
+    box-sizing: border-box !important;
+    -webkit-box-sizing: border-box !important;
+    -moz-box-sizing: border-box !important;
+}
+img {
+    max-width: 100%;
+}
+
+.search {
+    margin-top: 20px;
+    margin-left: 2%;
+}
+
+.tableBox {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+}
+
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 30px;
+}

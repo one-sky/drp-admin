@@ -1,0 +1,23 @@
+.distributor .left-items {
+    width: 50%;
+}
+.distributor .item {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+}
+
+.distributor .left-items .title {
+    width: 56px;
+}
+.distributor .right-items .title {
+    width: 70px;
+}
+
+.distributor .dialog .type {
+    width: 60px;
+}
+
+.distributor .dialog .reason {
+    width: 400px;
+}

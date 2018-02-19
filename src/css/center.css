@@ -1,0 +1,32 @@
+.center .top {
+    background: #dfe6ec;
+    width: 100%;
+    font-size: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    padding: 14px 0 16px 0;
+    
+}
+
+.center .top .logout {
+    padding: 2px 10px;
+    margin-left: 20px;
+}
+
+.center .tab {
+    width: 150px;
+    height: 100vh;
+    padding: 100px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.center .tab .el-menu-item, .center .tab .el-menu-item-group__title {
+    font-size: 16px;
+}
+
+.center .tab .el-menu-item-group .el-menu-item {
+    font-size: 14px;
+}
