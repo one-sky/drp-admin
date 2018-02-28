@@ -21,3 +21,23 @@
     height: 88px;
     display: block;
 }
+
+
+.brand .search .searchItem {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 80px;
+
+}
+
+.brand .search .searchItem .el-form-item {
+    margin-left: 40px;
+}
+
+.brand .search .searchItem .el-form-item:first-child {
+    margin-left: 0;
+}
+.brand .search .searchItem .el-form-item .el-form-item__label {
+    text-align-last: justify;
+}

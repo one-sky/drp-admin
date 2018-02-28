@@ -1,36 +1,41 @@
 <template>
     <div class="brand">
         <div class="search flex-col hor-center">
-            <el-form :model="searchGroup" :inline="true">
-                <el-form-item label="类目">
-                    <el-select class="type" v-model="searchGroup.categoryId" placeholder="请选择类目">
-                        <el-option v-for="item in categoryList" :label="item.categoryName" :key="item.id" :value="item.id"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="渠道">
-                    <el-select class="type" v-model="searchGroup.channelId" placeholder="请选择渠道">
-                        <el-option v-for="item in channelList" :label="item.channelName" :key="item.id" :value="item.id"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="品牌名称">
-                    <el-input  v-model="searchGroup.brandName"></el-input>
-                </el-form-item>
-                <el-form-item label="审核状态">
-                    <el-select class="type" v-model="searchGroup.status" placeholder="请选择品牌审核状态">
-                        <el-option label="全部" value="YN"></el-option>
-                        <el-option label="已代理" value="Y"></el-option>
-                        <el-option label="未代理" value="N"></el-option>
-                        <el-option label="审核中" value="W"></el-option>
-                        <el-option label="已拒绝" value="R"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="分销商名称">
-                    <el-input  v-model="searchGroup.nickName"></el-input>
-                </el-form-item>
-                <el-form-item>
-                <el-button @click="handleSearch" type="primary">查询</el-button>
-                <el-button class="el-icon-plus" @click="handleAdd" type="primary"></el-button>
-                </el-form-item>
+            <el-form :model="searchGroup" :inline="true" label-width="90px">
+                <div class="searchItem">
+                    <el-form-item label="类目">
+                        <el-select class="type" v-model="searchGroup.categoryId" placeholder="请选择类目">
+                            <el-option v-for="item in categoryList" :label="item.categoryName" :key="item.id" :value="item.id"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="渠道">
+                        <el-select class="type" v-model="searchGroup.channelId" placeholder="请选择渠道">
+                            <el-option v-for="item in channelList" :label="item.channelName" :key="item.id" :value="item.id"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="品牌名称">
+                        <el-input  v-model="searchGroup.brandName" placeholder="请输入品牌名称"></el-input>
+                    </el-form-item>
+                </div>
+                <div class="searchItem">
+                    <el-form-item label="审核状态">
+                        <el-select class="type" v-model="searchGroup.status" placeholder="请选择品牌审核状态">
+                            <el-option label="全部" value="YN"></el-option>
+                            <el-option label="已代理" value="Y"></el-option>
+                            <el-option label="未代理" value="N"></el-option>
+                            <el-option label="审核中" value="W"></el-option>
+                            <el-option label="已拒绝" value="R"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="分销商名称">
+                        <el-input  v-model="searchGroup.nickName" placeholder="请请输入分销商名称"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button @click="handleSearch" type="primary">查询</el-button>
+                    </el-form-item>
+                </div>
+                
+                
             </el-form>
         </div>
         <div class="tableBox">
@@ -39,80 +44,77 @@
                 style="width: 96%">
                 <el-table-column
                     label="分销商"
-                    width="120"
+                    width="110"
                     align="center"
                     prop="nickName">
                 </el-table-column>
                 <el-table-column
                     label="所属类目"
-                    width="150"
+                    width="110"
                     prop="categoryName"
-                >
+                    align="center">
                 </el-table-column>
                 <el-table-column
                     label="品牌名称"
-                    width="170"
+                    width="110"
                     prop="brandName"
-                >
+                    align="center">
                 </el-table-column>
                 <el-table-column
                     label="渠道"
-                    width="170"
+                    width="90"
                     prop="channelName"
-                >
+                    align="center">
                 </el-table-column>
                 <el-table-column
                     label="状态"
-                    width="100"
-                >
+                    width="80"
+                    align="center">
                     <template scope="scope">
                         <div>{{scope.row.status|formateStatus(scope.row.status)}}</div>
                     </template>
                 </el-table-column>
                 <el-table-column
-                    v-if="scope.row.status == 'R'"
                     label="拒绝原因"
-                    width="220"
-                    prop="reasone"
+                    width="160"
                     class="long-title"
-                >
+                    align="center">
+                    <template scope="scope">
+                        <div>{{scope.row|formateReason(scope.row)}}</div>
+                    </template>
                 </el-table-column>
                 <el-table-column
                     label="申请材料"
-                    width="220"
+                    width="120"
                     prop="brandCertificate"
                     class="long-title"
-                >
+                    align="center">
                 </el-table-column>
                 
                 <el-table-column
                     label="创建时间"
-                    width="180"
-                >
+                    width="178"
+                    align="center">
                     <template scope="scope">
                         {{scope.row.createTime|formatDate(scope.row.createTime)}}
                     </template>
                 </el-table-column>
-                <el-table-column label="操作">
+                <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
                         <el-button-group>
                             <el-button
+                                v-if="scope.row.status == 'W'"
                                 type="primary"
                                 size="mini"
-                                class="el-icon-more"
-                                @click="getBrandAttachment(scope.row.id)">
+                                class="el-icon-check"
+                                @click="handleAgentStatus(scope.row, 'Y')">
                             </el-button>
                             <el-button
+                                v-if="scope.row.status == 'W' || scope.row.status == 'Y'"
                                 type="primary"
                                 size="mini"
-                                class="el-icon-edit"
-                                @click="handleEdit(scope.row.id)">
-                            </el-button>
-                            <el-button
-                                type="primary"
-                                size="mini"
-                                class="el-icon-delete"
-                                @click="deleteBrand(scope.row.id)">
+                                class="el-icon-close"
+                                @click="handleAgentStatus(scope.row, 'N')">
                             </el-button>
                         </el-button-group>
                     </template>
@@ -126,6 +128,18 @@
             </el-pagination>
         </div>
 
+        <el-dialog class="dialog" :visible.sync="brandVisible">
+            <el-form :model="brand" :inline="true">
+                <el-form-item label="拒绝理由">
+                    <el-input type="textarea" v-model="brand.reason"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="brandVisible = false">取 消</el-button>
+                <el-button type="primary" @click="updateAgentStatus()">确 定</el-button>
+            </div>
+        </el-dialog>
+
     </div>
 </template>
 
@@ -137,6 +151,7 @@
         getCategoryList,
         getAgentBrandList,
         getChannelOptionList,
+        updateAgentStatus
     } from '../../api/api';
 
     export default {
@@ -159,7 +174,8 @@
                 categoryList: [],
                 channelList: [],
                 tableData: [],
-                brandAttachment: {},
+                brand: {},
+                brandVisible: false,
                 page: {
                     pageNum: 1,
                     total: 0,
@@ -183,6 +199,70 @@
                 };
                 this.page.pageNum = val;
                 this.getAgentBrandList();
+            },
+
+            reConfirm() {
+                this.$confirm('是否确认通过审核?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.updateAgentStatus();
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消审批',
+                        onClose: () => {
+                            this.brand = {};
+                        }
+                    });      
+                });
+            },
+            // 审核
+            handleAgentStatus(row, status) {
+                this.$set(this, 'brand', row);
+
+                if (status === 'Y') {
+                   this.brand.status = 'Y';
+                   this.reConfirm();
+                } else {
+                    this.brand.status = 'R';
+                    this.brandVisible = true;
+                }
+            },
+            updateAgentStatus() {
+                const param = {
+                    ...this.brand
+                };
+                updateAgentStatus(param).then((res) => {
+                    if (res.status == 200 && res.data > 0) {
+                        this.$message({
+                            message: '提交成功',
+                            type: 'warning',
+                            duration: 2000,
+                            onClose: () => {
+                                if (this.brand.status === 'R') {
+                                    this.brandVisible = false;
+                                }
+                                this.brand = {};
+                                this.getAgentBrandList();
+                            }
+                        });
+                    } else {
+                        this.$message({
+                            message: '提交失败',
+                            type: 'warning',
+                            duration: 2000,
+                            onClose: () => {
+                                if (this.brand.status === 'R') {
+                                    this.brandVisible = false;
+                                }
+                                this.brand = {};
+                                this.getAgentBrandList();
+                            }
+                        });
+                    }
+                });
             },
             // 类目
             getCategoryList() {
@@ -209,7 +289,8 @@
             },
             getAgentBrandList() {
                 const param = {
-                    ...this.searchForm
+                    ...this.searchForm,
+                    ...this.page
                 };
                 getAgentBrandList(param).then((res) => {
                     if (res.status == 200) {
@@ -228,15 +309,23 @@
                 switch (status) {
                     case 'Y':
                         return '已代理';
-                    case 'N':
-                        return '未代理';
+                    case 'R':
+                        return '已拒绝';
                     case 'W':
-                        return '已代理';
+                        return '审核中';
                     default:
-                        return '未完善';
+                        return '已代理';
                 }
             },
-            formatePoint: points => ((points !== null) ? points : '用户信息未完善')
+            formatePoint: points => ((points !== null) ? points : '用户信息未完善'),
+            formateReason: (row) => {
+                switch (row.status) {
+                    case 'R':
+                        return row.reason;
+                    default:
+                        return ' 无';
+                }
+            },
         }
     };
 </script>

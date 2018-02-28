@@ -56,23 +56,23 @@
                     },
                     {
                         name: '类目管理',
-                        router: '/distributor',
+                        router: '/center/categoryList',
                     },
                     {
                         name: '商品管理',
-                        router: '/distributor',
+                        router: '/center/product',
                     },
                     {
                         name: '订单管理',
-                        router: '/distributor',
+                        router: '/center/order',
                     },
                     {
                         name: '营销管理',
-                        router: '/distributor',
+                        router: '/center/promotion',
                     },
                     {
                         name: '内容设置',
-                        router: '/distributor',
+                        router: '/center/resource',
                     }
                 ],
                 model: 0

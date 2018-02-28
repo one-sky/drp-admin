@@ -6,7 +6,8 @@ import Center from '../views/center';
 import Distributor from '../views/distributor';
 import BrandDetail from '../views/brand/brandDetail';
 import AgentBrand from '../views/brand/agentBrand';
-import Category from '../views/category';
+import CategoryList from '../views/category/categoryList';
+import AttrList from '../views/category/attrList';
 import Product from '../views/product';
 import Order from '../views/order';
 import Promotion from '../views/promotion';
@@ -39,8 +40,12 @@ export default new Router({
           component: AgentBrand
         },
         {
-          path: 'category',
-          component: Category
+          path: 'categoryList',
+          component: CategoryList
+        },
+        {
+          path: 'attrList',
+          component: AttrList
         },
         {
           path: 'product',
