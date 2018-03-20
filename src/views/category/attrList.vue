@@ -3,7 +3,7 @@
         <div class="search flex-col hor-center">
             <el-form :inline="true">
                 <el-form-item>
-                    <el-button @click="handleAdd" type="primary">返回类目列表</el-button>
+                    <el-button @click="this.$router.push({ path: '/center/categoryList'})" type="primary">返回类目列表</el-button>
                 </el-form-item>
                 <el-form-item>
                     <el-button class="el-icon-plus" @click="handleAdd" type="primary"></el-button>
@@ -96,7 +96,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="所属类目"  v-if="attr.level == 1" >
-                    <el-select class="type" v-model="attr.categoryId" placeholder="请选择类目" :disabled="attr.status && attr.title=='修改属性'">
+                    <el-select class="type" v-model="attr.categoryId" placeholder="请选择类目" :disabled="!!(attr.status && attr.title=='修改属性')">
                         <el-option v-for="item in categoryList" :label="item.categoryName" :key="item.id" :value="item.id"></el-option>
                     </el-select>
                 </el-form-item>

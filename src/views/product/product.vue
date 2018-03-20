@@ -5,11 +5,13 @@
                 <div class="searchItem">
                     <el-form-item label="类目">
                         <el-select class="type" v-model="searchGroup.categoryId" placeholder="请选择类目" @change="changeCategory()">
+                            <el-option label="全部" value="0"></el-option>
                             <el-option v-for="item in categoryList" :label="item.categoryName" :key="item.id" :value="item.id"></el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item label="品牌">
                         <el-select class="type" v-model="searchGroup.brandId" placeholder="请选择品牌">
+                            <el-option label="全部" key="0" value="0"></el-option>
                             <el-option v-for="item in sBrandList" :label="item.brandName" :key="item.id" :value="item.id"></el-option>
                         </el-select>
                     </el-form-item>
@@ -103,7 +105,7 @@
                         <el-button
                             type="primary"
                             size="mini"
-                            @click="handleSkuList(scope.row)">
+                            @click="handleSkuList(scope.row.productId)">
                             查看商品详情
                         </el-button>
                         <el-button
@@ -111,12 +113,6 @@
                             size="mini"
                             class="el-icon-edit"
                             @click="handleEdit(scope.row)">
-                        </el-button>
-                        <el-button
-                            type="primary"
-                            size="mini"
-                            class="el-icon-delete"
-                            @click="deleteProduct(scope.row)">
                         </el-button>
                     </el-button-group>
                 </template>
@@ -249,6 +245,12 @@
             </el-collapse-item>
         </el-collapse> -->
 
+        <div class="pagination">
+            <el-pagination layout="prev, pager, next" :page-size="page.pageSize" :total="page.total"
+                            :current-page="page.pageNum" @current-change="handleCurrentChange">
+            </el-pagination>
+        </div>
+
         <el-dialog :title="product.title" class="dialog" :visible.sync="productVisible" @close="resetDialog('form')">
             <el-form :model="product" ref="form" label-width="100px">
                 <el-form-item label="所属类目" >
@@ -278,21 +280,13 @@
                 <el-form-item label="商品零售价">
                     <el-input  v-model="product.retailPrice"></el-input>
                 </el-form-item>
-                <el-form-item label="商品价格范围">
-                    <div class="flex-row">
-                        <el-input  v-model="product.lowPrice"></el-input>
-                        ~
-                        <el-input  v-model="product.highPrice"></el-input>
-                    </div>
-                </el-form-item>
                 <el-form-item label="商品属性">
                     <el-tag
                         v-for="tag in product.spuAttr"
-                        :key="tag"
-                        closable>
+                        :key="tag">
                         {{tag}}
                     </el-tag>
-                    <el-button size="small" @click="handleAttr">+ New Tag</el-button>
+                    <el-button size="small" @click="handleAttr">+ Change Tag</el-button>
                 </el-form-item>
                 <el-form-item label="商品状态">
                     <el-switch
@@ -308,10 +302,10 @@
             </div>
         </el-dialog>
 
-        <el-dialog title="添加属性" class="dialog" :visible.sync="attrVisible" @close="resetDialog('attr')">
+        <el-dialog title="添加属性" class="dialog" :visible.sync="attrVisible">
             <el-form :model="product.skuAttr" ref="attr">
                 <el-form-item label-width="80px">
-                    <el-checkbox-group v-model="product.spuAttr">
+                    <el-checkbox-group v-model="spuAttr">
                         <el-checkbox
                             v-for="item in attrList"
                             :label="item.attrName"
@@ -330,7 +324,7 @@
 </template>
 
 <style>
-    @import "../css/category";
+    @import "../../css/category";
 </style>
 <script>
     import {
@@ -340,9 +334,8 @@
         getAttributeList,
         getSpuDetail,
         saveProduct,
-        deleteProduct
-    } from '../api/api';
-    import * as formatDate from '../js/date';
+    } from '../../api/api';
+    import * as formatDate from '../../js/date';
 
     export default {
         data() {
@@ -356,8 +349,6 @@
                     thumbnailImage: null,
                     productName: null,
                     retailPrice: null,
-                    lowPrice: null,
-                    highPrice: null,
                     status: 1,
                     spuAttr: [],
                 },
@@ -371,14 +362,22 @@
                 attrList: [],
                 searchGroup: {
                     categoryId: null,
-                    brandName: null,
-                    isFinished: null
+                    brandId: null,
+                    productName: null,
+                    online: null
                 },
                 searchForm: {
                     categoryId: null,
-                    brandName: null,
-                    isFinished: null
+                    brandId: null,
+                    productName: null,
+                    online: null
                 },
+                page: {
+                    pageNum: 1,
+                    total: 0,
+                    pageSize: 20
+                },
+                spuAttr: [],
             };
         },
         methods: {
@@ -417,38 +416,11 @@
             changeCategory(categoryId) {
                 this.getBrandListByCategoryId(categoryId, 'search');
             },
-            formateSaveMessage(data) {
-                switch (data) {
-                    case -10:
-                        return '该类目下存在商品，您不能修改该类目，请先删除商品后操作';
-                    case -11:
-                        return '该类目下存在属性标签，您不能修改该类目，请先删除属性后操作';
-                    case -20:
-                        return '该类目下存在上架商品，您不能关闭该类目状态，请先关闭或删除商品后操作';
-                    case -21:
-                        return '该类目下存在使用中的属性，您不能关闭该类目状态，请先关闭或删除属性后操作';
-                    case -30:
-                        return '该类目下存在使用中的子类目，您不能关闭该类目状态，请先关闭或删除子类目后操作';
-                    default:
-                        return '修改成功';
-                }
-            },
-            formateDeleteMessage(data) {
-                switch (data) {
-                    case -10:
-                        return '该类目下存在商品，您不能删除该类目，请先删除商品后操作';
-                    case -11:
-                        return '该类目下存在属性标签，您不能删除该类目，请先删除属性后操作';
-                    default:
-                        return '删除成功';
-                }
-            },
-
             handleEdit(product) {
                 product.title = '修改商品';
-                product.status = product.online == 'Y';
-                this.beforEditAttr = product.spuAttr;
+                product.spuAttr && (this.beforEditAttr = [...product.spuAttr]);
                 this.$set(this, 'product', product);
+                this.$set(this.product, 'status', product.online == 'Y');
                 this.productVisible = true;
             },
 
@@ -472,44 +444,38 @@
                             });
                         } else {
                             this.attrVisible = true;
+                            this.spuAttr = [...this.product.spuAttr];
                             this.$set(this, 'attrList', res.data);
                         }
                     }
                 });
             },
 
-            saveAttr() {
-                this.attrVisible = false;
-            },
-
-            deleteProduct(product) {
-                const param = {
-                    ...product
-                };
-                deleteProduct(param).then((res) => {
-                    if (res.status == 200) {
-                        this.$message({
-                            message: `${this.formateDeleteMessage(res.data)}`,
-                            type: `${res.data > 0 ? 'success' : 'warning'}`,
-                            duration: 2000,
-                            onClose: () => {
-                                this.productVisible = false;
-                                this.getProductList();
-                            }
-                        });
+            handleSkuList(spuId) {
+                this.$router.push({ path: '/center/skuList',
+                    query: {
+                        spuId
                     }
                 });
             },
+
+            saveAttr() {
+                this.$set(this.product, 'spuAttr', [...this.spuAttr]);
+                this.attrVisible = false;
+            },
+
             saveProduct() {
                 const param = {
-                    ...this.product
+                    ...this.product,
+                    id: this.product.productId
                 };
-                param.status = param.status ? 1 : 2;
+                param.online = param.online ? 'Y' : 'N';
+                param.spuAttr = param.spuAttr && param.spuAttr.toString();
                 saveProduct(param).then((res) => {
-                    if (res.status == 200) {
+                    if (res.status == 200 && res.data > 0) {
                         this.$message({
-                            message: `${this.formateMessage(res.data)}`,
-                            type: `${res.data > 0 ? 'success' : 'warning'}`,
+                            message: '操作成功',
+                            type: 'success',
                             duration: 2000,
                             onClose: () => {
                                 this.productVisible = false;
@@ -520,21 +486,15 @@
                 });
             },
             resetDialog(formName) {
-                if (formName == 'attr') {
-                    this.product.spuAttr = this.beforEditAttr;
-                } else {
-                    this.product = {
-                        categoryId: null,
-                        brandId: null,
-                        thumbnailImage: null,
-                        productName: null,
-                        retailPrice: null,
-                        lowPrice: null,
-                        highPrice: null,
-                        status: 1,
-                        spuAttr: this.beforEditAttr,
-                    };
-                }
+                this.product = {
+                    categoryId: null,
+                    brandId: null,
+                    thumbnailImage: null,
+                    productName: null,
+                    retailPrice: null,
+                    status: 1,
+                    spuAttr: [...this.beforEditAttr],
+                };
                 this.$refs[formName].resetFields();
             },
         
@@ -571,7 +531,10 @@
 
             getProductList() {
                 const param = {
-                    ...this.searchForm,
+                    categoryIds: (this.searchForm.categoryId && this.searchForm.categoryId !='0') ? [this.searchForm.categoryId] : null,
+                    brandIds: (this.searchForm.brandId && this.searchForm.brandId !='0') ? [this.searchForm.brandId] : null,
+                    productName: this.searchForm.productName,
+                    online: this.searchForm.online == 'YN' ? null : this.searchForm.online,
                     ...this.page
                 };
                 getProductList(param).then((res) => {

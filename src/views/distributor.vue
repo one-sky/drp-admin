@@ -119,6 +119,12 @@
                                 @click="handleEdit(scope.row.userId)">修改积分
                             </el-button>
                         </div>
+                        <div>
+                            <el-button v-if="scope.row.distributorId!=null && scope.row.distributorId!=0"
+                                size="mini"
+                                @click="handleSku(scope.row.distributorId)">设置特殊价格
+                            </el-button>
+                        </div>
                         
                     </template>
                 </el-table-column>
@@ -158,16 +164,84 @@
                 <el-button type="primary" @click="updatePoint()">确 定</el-button>
             </div>
         </el-dialog>
+
+
+        <el-dialog title="分销商价格设置" class="dialog" :visible.sync="priceVisible" @close="resetDialog('priceForm')">
+            <el-form :model="sku" ref="priceForm">
+                <el-form-item label="已代理渠道">
+                    <el-select placeholder="请选择已代理渠道" v-model="sku.channelId" @change="getAgentBrandByChannel">
+                        <el-option v-for="item in channelList" :label="item.name" :key="item.channelId" :value="item.channelId"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="已代理品牌：">
+                    <el-select  placeholder="请选择已代理品牌" v-model="sku.brandId" @change="getProductList">
+                        <el-option v-for="item in brandList" :label="item.brandName" :key="item.id" :value="item.id"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="商品名称">
+                    <el-select  placeholder="请选择商品名称" v-model="sku.spuId" @change="getSpuDetail">
+                        <el-option v-for="item in spuList" :label="item.productName" :key="item.productId" :value="item.productId"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="属性">
+                    <el-select v-model="sku.skuId" placeholder="请选择属性值" @change="getSkuDetail">
+                        <el-option v-for="item in skuList" :label="item.skuAttr" :key="item.skuId" :value="item.skuId"></el-option>
+                    </el-select>
+                </el-form-item>
+                
+               <div v-if="sku.skuId">
+                参考价:
+                <div v-for="(item, index) in sku.refer" label="批量" :key="index" class="price flex-row hor-center ver-center">
+                    <div>{{item.lowQuantity}}</div>
+                    <div>~</div>
+                    <div>{{item.highQuantity}}</div>
+                    <div>价格:</div>
+                    <div>{{item.price}}</div>
+                    <div>会员等级:</div>
+                    <div>{{item.levelId}}</div>
+                </div>
+            </div>
+                
+            </el-form>
+            <el-form ref="priceList" style="margin: 10px auto;">
+                <div v-if="sku.skuId" v-for="i in priceNum" label="批量" :key="i" class="price flex-row hor-center ver-center">
+                    <el-input  v-model="sku.priceList[i-1].lowQuantity"></el-input>
+                    <div>~</div>
+                    <el-input  v-model="sku.priceList[i-1].highQuantity"></el-input>
+                    <div>价格:</div>
+                    <el-input  v-model="sku.priceList[i-1].price"></el-input>
+                    <div>库存:</div>
+                    <el-input  v-model="sku.priceList[i-1].stock"></el-input>
+                    <el-button size="mi\\\ni" type="primary" @click="handleRemovePriceList(i-1)">删除</el-button>
+                </div>
+                <div class="flex-col ver-center addBtn promotion">
+                    <el-button @click="handleReAdd">+ 添加批次</el-button>
+                </div>
+                
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="priceVisible = false">取 消</el-button>
+                <el-button type="primary" :disabled="!sku.skuId || sku.priceList.length == 0" @click="saveSpecialPriceList()">确 定</el-button>
+            </div>
+
+            
+        </el-dialog>
     </div>
 </template>
 
 <style>
     @import "../css/distributor";
+    
 </style>
 <script>
     import {
         getUserList,
-        updatePoint 
+        updatePoint,
+        getChannelList,
+        getAgentBrandByChannel,
+        getProductList,
+        getSpuDetail,
+        saveSpecialPriceList
     } from '../api/api';
     import * as formatDate from '../js/date';
 
@@ -183,6 +257,10 @@
                     vipId: ''
                 },
                 tableData: [],
+                channelList: [],
+                brandList: [],
+                spuList: [],
+                skuList: [],
                 page: {
                     pageNum: 1,
                     total: 0,
@@ -194,7 +272,17 @@
                     type: '+',
                     point: 0,
                     reason: null
-                }
+                },
+
+                priceVisible: false,
+                sku: {
+                    channelId: null,
+                    brandId: null,
+                    spuId: null,
+                    skuId: null,
+                    priceList: []
+                },
+                priceNum: 0
             };
         },
         methods: {
@@ -218,13 +306,56 @@
                 this.$set(this.editPoint, 'userId', userId);
                 this.dialogVisible = true;
             },
-             resetDialog(formName) {
-                this.editPoint = {
-                    userId: null,
-                    type: '+',
-                    point: 0,
-                    reason: null
-                };
+
+            handleSku(distributorId) {
+                this.$set(this.sku, 'distributorId', distributorId);
+                this.sku.priceList = [{
+                    startPiece: 0,
+                    endPiece: 0,
+                    price: 0,
+                    lock: 0
+                }];
+                this.priceNum = 1;
+                this.priceVisible = true;
+                this.getChannelList();
+            },
+
+            handleRemovePriceList(index) {
+                this.sku.priceList.splice(index, 1);
+                this.priceNum = this.priceNum - 1;
+            },
+
+            handleReAdd() {
+                if (!this.sku.skuId) {
+                    return;
+                }
+                this.sku.priceList.push({
+                    lowQuantity: 0,
+                    highQuantity: 0,
+                    price: 0,
+                    stock: 0
+                });
+                this.priceNum = this.priceNum + 1;
+            },
+            resetDialog(formName) {
+                if (formName === 'priceForm') {
+                    this.sku = {
+                        channelId: null,
+                        brandId: null,
+                        spuId: null,
+                        skuId: null,
+                        priceList: []
+                    };
+                    this.priceNum = 0;
+                } else {
+                    this.editPoint = {
+                        userId: null,
+                        type: '+',
+                        point: 0,
+                        reason: null
+                    };
+                }
+                
                 this.$refs[formName].resetFields();
             },
             updatePoint() {
@@ -244,6 +375,24 @@
                     }
                 });
             },
+            saveSpecialPriceList() {
+                const param = {
+                    ...this.sku
+                };
+                saveSpecialPriceList(param).then((res) => {
+                    if (res.status == 200 && res.data > 0) {
+                        this.$message({
+                            message: '保存成功',
+                            type: 'success',
+                            duration: 2000,
+                            onClose: () => {
+                                this.priceVisible = false;
+                                this.getUserList();
+                            }
+                        });
+                    }
+                });
+            },
             getUserList() {
                 const param = {
                     ...this.searchForm,
@@ -255,7 +404,98 @@
                         this.page.total = res.page.total;
                     }
                 });
-            }
+            },
+
+            getChannelList() {
+                const param = {
+                   distributorId: this.sku.distributorId
+                };
+                getChannelList(param).then((res) => {
+                    if (res.status == 200) {
+                        this.$set(this, 'channelList', res.data);
+                        this.$set(this.sku, 'brandId', null);
+                    }
+                });
+            },
+
+            getAgentBrandByChannel(channelId) {
+                const param = {
+                    distributorId: this.sku.distributorId,
+                    channelId
+                };
+                getAgentBrandByChannel(param).then((res) => {
+                    if (res.status == 200) {
+                        this.$set(this, 'brandList', res.data);
+                    }
+                });
+            },
+
+            // 获取spu
+            getProductList(brandId) {
+                 const param = {
+                    userType: 1,
+                    brandIds: [brandId]
+                };
+                getProductList(param).then((res) => {
+                    if (res.status == 200) {
+                        this.$set(this, 'spuList', res.data);
+                    }
+                });
+            },
+
+            // 获取sku
+            getSpuDetail(spuId) {
+                const param = {
+                    spuId
+                };
+                getSpuDetail(param).then((res) => {
+                    if (res.status == 200) {
+                        const skuList = res.data.skuDetailList;
+                        skuList.map(item => {
+                            if (item.priceList.length === 0) {
+                                return true;
+                            }
+                            const sku = item.priceList[item.priceList.length - 1];
+                            item.skuId = sku.skuId;
+                            item.skuAttr = sku.skuAttr;
+                        });
+                        this.$set(this, 'skuList', skuList);
+                    }
+                });
+            },
+
+            // 获取sku价格
+            getSkuDetail(skuId) {
+                const sku = this.skuList.find(item => item.skuId == skuId);
+                const priceList = sku.priceList;
+                if (!priceList || priceList.length === 0) {
+                    return;
+                }
+                const tmpSpecial = [];
+                const tmpCommon = [];
+                priceList.map(item => {
+                    if (item.special) {
+                        item.lowQuantity = item.startPiece;
+                        item.highQuantity = item.endPiece;
+                        item.price = item.price;
+                        tmpSpecial.push(item);
+                        return true;
+                    }
+                    if (!item.promotionId && !item.special) {
+                        item.lowQuantity = item.startPiece;
+                        item.highQuantity = item.endPiece;
+                        item.price = item.price;
+                        tmpCommon.push(item);
+                        return true;
+                    }
+                    return false;
+                });
+                this.$set(this.sku, 'priceList', tmpSpecial);
+                this.$set(this.sku, 'refer', tmpCommon);
+                this.priceNum = tmpSpecial.length;
+            },
+
+            
         },
         created() {
             this.getUserList();

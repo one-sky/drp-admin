@@ -21,3 +21,11 @@
 .distributor .dialog .reason {
     width: 400px;
 }
+
+.distributor .price > div {
+    margin-left: 10px;
+}
+
+.distributor .price .el-button {
+    margin-left: 10px;
+}

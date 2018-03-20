@@ -43,3 +43,39 @@
     padding: 1px 2px;
     margin-top: 4px;
 }
+
+.category .price .el-input, .category .price .el-input__inner{
+    width: 60px;
+}
+
+.order .el-collapse-item__header {
+    height: 240px;
+}
+
+.promotion.price > div {
+    margin-left: 10px;
+}
+
+.promotion.price .el-button {
+    margin-left: 10px;
+}
+
+.promotion.addBtn {
+    margin-top: 30px;
+}
+.promotionEdit {
+    margin-left: 20px;
+}
+
+.promotionEdit .textarea textarea {
+    width: 400px;
+}
+
+.addPromotion, .promotionBtn {
+    margin: 10px 10px;
+}
+
+.el-picker-panel {
+    z-index: 1000000 !important;
+}
+

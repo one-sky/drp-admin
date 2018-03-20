@@ -64,11 +64,11 @@
                     },
                     {
                         name: '订单管理',
-                        router: '/center/order',
+                        router: '/center/orderList',
                     },
                     {
                         name: '营销管理',
-                        router: '/center/promotion',
+                        router: '/center/promotion/index',
                     },
                     {
                         name: '内容设置',

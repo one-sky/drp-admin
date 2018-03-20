@@ -22,7 +22,6 @@
                         <el-select class="type" v-model="searchGroup.status" placeholder="请选择品牌审核状态">
                             <el-option label="全部" value="YN"></el-option>
                             <el-option label="已代理" value="Y"></el-option>
-                            <el-option label="未代理" value="N"></el-option>
                             <el-option label="审核中" value="W"></el-option>
                             <el-option label="已拒绝" value="R"></el-option>
                         </el-select>

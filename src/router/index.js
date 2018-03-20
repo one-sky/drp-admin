@@ -8,9 +8,12 @@ import BrandDetail from '../views/brand/brandDetail';
 import AgentBrand from '../views/brand/agentBrand';
 import CategoryList from '../views/category/categoryList';
 import AttrList from '../views/category/attrList';
-import Product from '../views/product';
-import Order from '../views/order';
-import Promotion from '../views/promotion';
+import Product from '../views/product/product';
+import SkuList from '../views/product/skuList';
+import OrderList from '../views/order/orderList';
+import Promotion from '../views/promotion/promotion';
+import UpdatePromotion from '../views/promotion/update';
+import ProductPromotion from '../views/promotion/product';
 import Resource from '../views/resource';
 
 Vue.use(Router);
@@ -52,12 +55,24 @@ export default new Router({
           component: Product
         },
         {
-          path: 'order',
-          component: Order
+          path: 'skuList',
+          component: SkuList
         },
         {
-          path: 'promotion',
+          path: 'orderList',
+          component: OrderList
+        },
+        {
+          path: 'promotion/index',
           component: Promotion
+        },
+        {
+          path: 'promotion/update',
+          component: UpdatePromotion
+        },
+        {
+          path: 'promotion/product',
+          component: ProductPromotion
         },
         {
           path: 'resource',
