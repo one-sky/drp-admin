@@ -112,139 +112,12 @@
                             type="primary"
                             size="mini"
                             class="el-icon-edit"
-                            @click="handleEdit(scope.row)">
+                            @click="handleAttr(scope.row)">
                         </el-button>
                     </el-button-group>
                 </template>
             </el-table-column>
         </el-table>
-
-        <!-- <el-collapse @change="getSpuDetail" accordion>
-            <el-collapse-item v-for="(product, index) in tableData" :name="product.productId" :key="index">
-                <template slot="title">
-                    <template v-for="item in product.thumbnailImage">
-                        <img :src="item" width="60" height="60" :key="item" />
-                    </template>
-                    <div>
-                        {{product.productName}}{{skuList ? skuList.skuAttr : false}}
-                    </div>
-                    <div>
-                        类目
-                        {{product.categoryName}}
-                    </div>
-                    <div>
-                        上架状态：
-                        {{product.online|formateStatus(product.online)}}
-                    </div>
-                    <div>
-                         创建时间：
-                        {{product.createTime|formatDate(product.createTime)}}
-                    </div>
-                    <div>
-                        <el-button
-                            type="primary"
-                            size="mini"
-                            class="el-icon-edit"
-                            @click="handleEdit(product)">
-                        </el-button>
-                    </div>
-                </template>
-                
-                <templat v-if="skuList">
-                    <div class="tableBox">
-                        <el-table
-                            :data="skuList"
-                            style="width: 96%">
-                            <el-table-column
-                                label="图片"
-                                width="120"
-                                align="center">
-                                <template scope="scope" v-for="item in scope.row.skuImg">
-                                    <img :src="item" :key="item" width="50" height="50" style="margin: 10px;"/>
-                                </template>
-                            </el-table-column>
-                            
-                            <el-table-column
-                                label="属性"
-                                width="120"
-                                align="center">
-                                <template scope="scope" v-for="item in scope.row.skuAttr">
-                                    <div :key="item" class="flex-row">
-                                        <div >{{item.attrName}}</div>
-                                        <div>{{item.attrValue}}</div>
-                                    </div>
-                                </template>
-                            </el-table-column>
-                            <el-table-column
-                                label="零售价"
-                                width="170"
-                                align="center">
-                                <template scope="scope">
-                                    {{scope.row.retailPrice|formateMoney(scope.row.retailPrice)}}
-                                </template>
-                            </el-table-column>
-                            <el-table-column
-                                label="促销价"
-                                width="170"
-                                align="center">
-                                <template scope="scope" v-for="item in scope.row.promotionList">
-                                    <div :key="item">
-                                        <span>{{item.startPiece}}</span> ~ <span>{{item.endPiece}}</span>
-                                        <span>价格：{{item.price|formateMoney(item.price)}}</span>
-                                        <span>库存：{{item.stock}}</span>
-                                    </div>
-                                </template>
-                            </el-table-column>
-                            <el-table-column
-                                label="批发价"
-                                width="170"
-                                align="center">
-                                <template scope="scope" v-for="item in scope.row.commonList">
-                                    <div :key="item">
-                                        <span>会员等级：{{item.levelId}}</span>
-                                        <span>{{item.startPiece}}</span> ~ <span>{{item.endPiece}}</span>
-                                        <span>价格：{{item.price|formateMoney(item.price)}}</span>
-                                        <span>库存：{{item.stock}}</span>
-                                    </div>
-                                </template>
-                            </el-table-column>
-                            <el-table-column
-                                label="销售数量"
-                                width="120"
-                                prop="salesNum"
-                                align="center">
-                            </el-table-column>
-                            <el-table-column label="操作" align="center">
-                                <template slot-scope="scope">
-                                    <el-button-group>
-                                        <el-button
-                                            type="primary"
-                                            size="mini"
-                                            @click="handleAttr(scope.row)">
-                                            查看属性
-                                        </el-button>
-                                        <el-button
-                                            type="primary"
-                                            size="mini"
-                                            class="el-icon-edit"
-                                            @click="handleEdit(scope.row)">
-                                        </el-button>
-                                        <el-button
-                                            type="primary"
-                                            size="mini"
-                                            class="el-icon-delete"
-                                            @click="deleteProduct(scope.row)">
-                                        </el-button>
-                                    </el-button-group>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
-                </templat>
-                
-            </el-collapse-item>
-        </el-collapse> -->
-
         <div class="pagination">
             <el-pagination layout="prev, pager, next" :page-size="page.pageSize" :total="page.total"
                             :current-page="page.pageNum" @current-change="handleCurrentChange">
@@ -254,7 +127,7 @@
         <el-dialog :title="product.title" class="dialog" :visible.sync="productVisible" @close="resetDialog('form')">
             <el-form :model="product" ref="form" label-width="100px">
                 <el-form-item label="所属类目" >
-                    <el-select class="type" v-model="product.categoryId" placeholder="请选择所属类目" @change="getBrandListByCategoryId">
+                    <el-select class="type" v-model="product.categoryId" placeholder="请选择所属类目" @change="handleCategory">
                         <el-option v-for="item in categoryList" :label="item.categoryName" :key="item.id" :value="item.id"></el-option>
                     </el-select>
                 </el-form-item>
@@ -281,12 +154,15 @@
                     <el-input  v-model="product.retailPrice"></el-input>
                 </el-form-item>
                 <el-form-item label="商品属性">
-                    <el-tag
-                        v-for="tag in product.spuAttr"
-                        :key="tag">
-                        {{tag}}
-                    </el-tag>
-                    <el-button size="small" @click="handleAttr">+ Change Tag</el-button>
+                    <el-checkbox-group v-model="product.spuAttr">
+                        <div v-for="(item, index) in attrList" :key="index" style="margin-bottom: 30px;">
+                            {{item.attrName}}:
+                            <el-checkbox-button v-for="attr in item.attrValueEntityList" :label="attr" :key="attr.id">{{attr.attrValue}}</el-checkbox-button>
+                        </div>
+                    </el-checkbox-group>
+                </el-form-item>
+                <el-form-item label="商品规格">
+                    <el-input  v-model="product.size" placeholder="颜色：红色、白色；大小：30mm"></el-input>
                 </el-form-item>
                 <el-form-item label="商品状态">
                     <el-switch
@@ -301,25 +177,6 @@
                 <el-button type="primary" @click="saveProduct()">确 定</el-button>
             </div>
         </el-dialog>
-
-        <el-dialog title="添加属性" class="dialog" :visible.sync="attrVisible">
-            <el-form :model="product.skuAttr" ref="attr">
-                <el-form-item label-width="80px">
-                    <el-checkbox-group v-model="spuAttr">
-                        <el-checkbox
-                            v-for="item in attrList"
-                            :label="item.attrName"
-                            :key="item.id">
-                        </el-checkbox>
-                    </el-checkbox-group>
-                </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
-                <el-button @click="attrVisible = false">取 消</el-button>
-                <el-button type="primary" @click="saveAttr()">确 定</el-button>
-            </div>
-        </el-dialog>
-
     </div>
 </template>
 
@@ -342,7 +199,6 @@
             return {
                 tableData: [],
                 productVisible: false,
-                attrVisible: false,
                 product: {
                     categoryId: null,
                     brandId: null,
@@ -351,8 +207,10 @@
                     retailPrice: null,
                     status: 1,
                     spuAttr: [],
+                    afterSpuAttr: '',
+                    beforeSpuAttr: '',
+                    size: ''
                 },
-                beforEditAttr: [],
                 categoryList: [],
                 // 查询的品牌列表
                 sBrandList: [],
@@ -376,8 +234,7 @@
                     pageNum: 1,
                     total: 0,
                     pageSize: 20
-                },
-                spuAttr: [],
+                }
             };
         },
         methods: {
@@ -395,6 +252,12 @@
                 this.$message.error('上传头像图片大小不能超过 2MB!');
                 }
                 return isJPG && isLt2M;
+            },
+            handleCategory(categoryId) {
+                this.getBrandListByCategoryId(categoryId);
+                this.$nextTick(() => {
+                    this.handleAttr(this.product);
+                });
             },
             handleSearch() {
                 this.searchForm = {
@@ -417,11 +280,22 @@
                 this.getBrandListByCategoryId(categoryId, 'search');
             },
             handleEdit(product) {
-                product.title = '修改商品';
-                product.spuAttr && (this.beforEditAttr = [...product.spuAttr]);
-                this.$set(this, 'product', product);
-                this.$set(this.product, 'status', product.online == 'Y');
                 this.productVisible = true;
+                product.title = '修改商品';
+                if (product.spuAttr && typeof product.spuAttr === 'string') {
+                    const spuAttr = [];
+                    product.spuAttr = (product.spuAttr || '').split(',');
+                    this.attrList.map(attr => {
+                        attr.attrValueEntityList && attr.attrValueEntityList.map(value => {
+                            if (product.spuAttr.includes(`${value.id}`)) {
+                                spuAttr.push(value);
+                            }
+                        });
+                    });
+                    product.spuAttr = [...spuAttr];
+                }
+                this.product = { ...product };
+                this.$set(this.product, 'status', product.online == 'Y');
             },
 
             handleAdd() {
@@ -429,24 +303,17 @@
                 this.productVisible = true;
             },
 
-            handleAttr() {
+            handleAttr(product) {
                 const param = {
                     userType: 1,
-                    categoryIds: [parseInt(this.product.categoryId)]
+                    categoryIds: [parseInt(product.categoryId)]
                 };
                 getAttributeList(param).then((res) => {
                     if (res.status == 200) {
-                        if (res.data.length === 0) {
-                            this.$message({
-                                message: '该类目下没有属性，请先新增属性',
-                                type: 'warning',
-                                duration: 2000,
-                            });
-                        } else {
-                            this.attrVisible = true;
-                            this.spuAttr = [...this.product.spuAttr];
-                            this.$set(this, 'attrList', res.data);
-                        }
+                        this.$set(this, 'attrList', res.data);
+                        this.$nextTick(() => {
+                            this.handleEdit(product);
+                        });
                     }
                 });
             },
@@ -459,18 +326,33 @@
                 });
             },
 
-            saveAttr() {
-                this.$set(this.product, 'spuAttr', [...this.spuAttr]);
-                this.attrVisible = false;
-            },
+            // saveAttr() {
+            //     const spuAttr = [];
+            //     const afterSpuAttr = [];
+            //     this.spuAttr && this.spuAttr.map(item => {
+            //         spuAttr.push(item.attrName);
+            //         afterSpuAttr.push(item.id);
+            //     });
+            //     this.product.spuAttr = spuAttr;
+            //     this.product.afterSpuAttr = (afterSpuAttr || '') && afterSpuAttr.toString();
+            //     this.attrVisible = false;
+            // },
 
             saveProduct() {
                 const param = {
                     ...this.product,
                     id: this.product.productId
                 };
-                param.online = param.online ? 'Y' : 'N';
-                param.spuAttr = param.spuAttr && param.spuAttr.toString();
+
+                param.online = param.status ? 'Y' : 'N';
+                const spuAttr = [];
+                param.spuAttr.map(item => {
+                    if (item && item.id) {
+                        spuAttr.push(item.id);
+                    }
+                });
+                param.spuAttr = `${param.beforeSpuAttr};${spuAttr && spuAttr.toString()}`;
+                param.thumbnailImage = param.thumbnailImage && param.thumbnailImage.toString();
                 saveProduct(param).then((res) => {
                     if (res.status == 200 && res.data > 0) {
                         this.$message({
@@ -486,16 +368,17 @@
                 });
             },
             resetDialog(formName) {
-                this.product = {
-                    categoryId: null,
-                    brandId: null,
-                    thumbnailImage: null,
-                    productName: null,
-                    retailPrice: null,
-                    status: 1,
-                    spuAttr: [...this.beforEditAttr],
-                };
-                this.$refs[formName].resetFields();
+
+                // this.product = {
+                //     categoryId: null,
+                //     brandId: null,
+                //     thumbnailImage: null,
+                //     productName: null,
+                //     retailPrice: null,
+                //     status: 1,
+                //     spuAttr: [...this.beforEditAttr],
+                // };
+                // this.$refs[formName].resetFields();
             },
         
             // 类目
@@ -541,64 +424,63 @@
                     if (res.status == 200) {
                         const tableData = res.data;
                         tableData.map(item => {
+                            item.beforeSpuAttr = item.spuAttr === 'null' ? '' : item.spuAttr;
                             item.thumbnailImage = item.thumbnailImage && item.thumbnailImage.split('；');
-                            if (item.spuAttr) {
-                                item.spuAttr = item.spuAttr.split('；').map(attr => attr.split('：')[0]);
-                            }
                         });
                         this.$set(this, 'tableData', tableData);
                     }
                 });
             },
 
-            getSpuDetail(spuId) {
-                if (!spuId) {
-                    return;
-                }
-                // 是否已经获取过了spuDetail
-                const spu = this.tableData.find(item => item.productId == spuId);
-                const param = {
-                    spuId
-                };
-                getSpuDetail(param).then((res) => {
-                    if (res.status == 200) {
-                        const list = res.data.skuDetailList;
-                        list.map(skuList => {
-                            const sku = skuList.priceList[skuList.priceList.length - 1];
+            // getSpuDetail(spuId) {
+            //     if (!spuId) {
+            //         return;
+            //     }
+            //     // 是否已经获取过了spuDetail
+            //     const spu = this.tableData.find(item => item.productId == spuId);
+            //     const param = {
+            //         spuId
+            //     };
+            //     getSpuDetail(param).then((res) => {
+            //         if (res.status == 200) {
+            //             const list = res.data.skuDetailList;
+            //             list.map(skuList => {
+            //                 const sku = skuList.priceList[skuList.priceList.length - 1];
 
-                            // 设置属性
-                            skuList.skuAttr = [];
-                            const skuAttr = sku.skuAttr.split('；');
-                            skuAttr && skuAttr.map(item => {
-                                skuList.skuAttr.push({
-                                    attrName: item.split('：')[0],
-                                    attrValue: item.split('：')[1]
-                                });
-                            });
+            //                 // 设置属性
+            //                 skuList.skuAttr = [];
+            //                 const skuAttr = sku.skuAttr.split('；');
+            //                 skuAttr && skuAttr.map(item => {
+            //                     skuList.skuAttr.push({
+            //                         attrName: item.split('：')[0],
+            //                         attrValue: item.split('：')[1]
+            //                     });
+            //                 });
 
-                            // 设置图片
-                            skuList.skuImg = [];
-                            sku.skuImg && skuList.skuImg.push(sku.skuImg.split('；'));
-                            skuList.retailPrice = sku.retailPrice;
-                            skuList.minPrice = sku.minPrice;
-                            skuList.salesNum = sku.salesNum;
-                            skuList.stock = sku.stock;
+            //                 // 设置图片
+            //                 skuList.skuImg = [];
+            //                 sku.skuImg && skuList.skuImg.push(sku.skuImg.split('；'));
+            //                 skuList.retailPrice = sku.retailPrice;
+            //                 skuList.minPrice = sku.minPrice;
+            //                 skuList.salesNum = sku.salesNum;
+            //                 skuList.stock = sku.stock;
+            //                 skuList.size = sku.size;
 
-                            // 设置promotionList commonList
-                            skuList.promotionList = [];
-                            skuList.commonList = [];
-                            skuList.priceList.map(item => {
-                                if (item.promotionId) {
-                                    skuList.promotionList.push(item);
-                                } else if (!item.special) {
-                                    skuList.commonList.push(item);
-                                }
-                            });
-                        });
-                        this.$set(this, 'skuList', list);
-                    }
-                });
-            },
+            //                 // 设置promotionList commonList
+            //                 skuList.promotionList = [];
+            //                 skuList.commonList = [];
+            //                 skuList.priceList.map(item => {
+            //                     if (item.promotionId) {
+            //                         skuList.promotionList.push(item);
+            //                     } else if (!item.special) {
+            //                         skuList.commonList.push(item);
+            //                     }
+            //                 });
+            //             });
+            //             this.$set(this, 'skuList', list);
+            //         }
+            //     });
+            // },
 
 
         },

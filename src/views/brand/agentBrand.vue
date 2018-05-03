@@ -135,7 +135,7 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="brandVisible = false">取 消</el-button>
-                <el-button type="primary" @click="updateAgentStatus()">确 定</el-button>
+                <el-button type="primary" @click="updateAgentStatus('N')">确 定</el-button>
             </div>
         </el-dialog>
 
@@ -206,7 +206,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.updateAgentStatus();
+                    this.updateAgentStatus('Y');
                 }).catch(() => {
                     this.$message({
                         type: 'info',
@@ -222,17 +222,16 @@
                 this.$set(this, 'brand', row);
 
                 if (status === 'Y') {
-                   this.brand.status = 'Y';
                    this.reConfirm();
                 } else {
-                    this.brand.status = 'R';
                     this.brandVisible = true;
                 }
             },
-            updateAgentStatus() {
+            updateAgentStatus(status) {
                 const param = {
                     ...this.brand
                 };
+                param.status = status;
                 updateAgentStatus(param).then((res) => {
                     if (res.status == 200 && res.data > 0) {
                         this.$message({

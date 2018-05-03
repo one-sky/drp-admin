@@ -33,7 +33,6 @@
                     align="center">
                     <template scope="scope">
                         <img :src="scope.row.logo" width="50" height="50" style="margin: 10px;"/>
-                        
                     </template>
                 </el-table-column>
                 <el-table-column

@@ -78,15 +78,17 @@
                             align="center">
                             <template scope="scope">
                                 <div class="flex-row-col hor-center">
-                                    <el-button
-                                        v-for="(item, index) in scope.row.attrList"
-                                        v-if="index < 3"
-                                        :key="item.id"
-                                        class="attr">
-                                        {{item.attrName}}
-                                    </el-button>
+                                    <template v-if="scope.row.attrList">
+                                        <el-button
+                                            v-for="(item, index) in scope.row.attrList"
+                                            v-if="index < 3"
+                                            :key="item.id"
+                                            class="attr">
+                                            {{item.attrName}}
+                                        </el-button>
+                                    </template>
                                     <el-button v-if="scope.row.attrList && scope.row.attrList.length > 3">...</el-button>
-                                    <el-button size="mini" v-if="scope.row.attrList.length == 0" type="primary" @click="handleAttr(scope.row.id)">
+                                    <el-button size="mini" v-if="!scope.row.attrList" type="primary" @click="handleAttr(scope.row.id)">
                                         增加属性
                                     </el-button>
                                     <el-button v-else size="mini" type="primary" @click="handleAttr(scope.row.id)">
@@ -222,12 +224,10 @@
             },
             changeStatus(val) {
                 const category = this.tableData.find(item => item.id == val);
-                if (category != null && category.status == 2) {
-                    this.$set(this.category, 'status', 2);
-                    this.$set(this.category, 'switch', true);
-                } else {
-                    this.$set(this.category, 'switch', true);
+                if (category != null && category.status) {
+                    this.$set(this.category, 'status', true);
                 }
+                // this.$set(this.category, 'switch', true);
             },
             formateSaveMessage(data) {
                 switch (data) {
@@ -296,7 +296,7 @@
                 saveCategory(param).then((res) => {
                     if (res.status == 200) {
                         this.$message({
-                            message: `${this.formateMessage(res.data)}`,
+                            message: `${this.formateSaveMessage(res.data)}`,
                             type: `${res.data > 0 ? 'success' : 'warning'}`,
                             duration: 2000,
                             onClose: () => {
@@ -332,7 +332,7 @@
                         const tableData = categoryList.filter(item => {
                             if (item.level == 1) {
                                 item.childCategoryList = categoryList.filter(child => child.level == 2 && child.parentId == item.id);
-                                this.attrList.length > 0 && item.childCategoryList && item.childCategoryList.map(i => {
+                                this.attrList.length > 0 && item.childCategoryList.length > 0 && item.childCategoryList.map(i => {
                                     i.attrList = this.attrList.filter(attr => attr.categoryId == i.id);
                                 });
                                 return true;

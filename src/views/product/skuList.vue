@@ -54,7 +54,7 @@
                 <div class="tableBox" v-if="sku.priceList && sku.priceList.length > 0">
                     <el-table
                         :data="sku.priceList"
-                        style="width: 50%">
+                        style="width: 40%">
                         <el-table-column
                             label="会员等级"
                             width="120"
@@ -125,9 +125,10 @@
                    <el-input  v-model="sku.priceList[i-1].levelId"></el-input>
                    <el-button size="mini" type="primary" @click="handleRemovePriceList(sku.priceList, i-1)">删除</el-button>
                 </el-form-item>
-                <div class="flex-row hor-center addBtn">
+                <div  v-if="sku.title == '新增sku商品'" class="flex-row hor-center addBtn">
                     <el-button @click="handleReAdd(sku.priceList)">+ 添加批次</el-button>
                 </div>
+                
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="skuVisible = false">取 消</el-button>
@@ -145,10 +146,10 @@
                    <el-input  v-model="priceList[i-1].price"></el-input>
                    会员等级:
                    <el-input  v-model="priceList[i-1].levelId"></el-input>
-                   <el-button size="mini" type="primary" @click="handleRemovePriceList(this.priceList, i-1)">删除</el-button>
+                   <el-button size="mini" type="primary" @click="handleRemovePriceList(priceList, i-1)">删除</el-button>
                 </el-form-item>
                 <div class="flex-row hor-center addBtn">
-                    <el-button @click="handleReAdd(this.priceList)">+ 添加批次</el-button>
+                    <el-button @click="handleReAdd(priceList)">+ 添加批次</el-button>
                 </div>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -259,10 +260,10 @@
             saveSku() {
                 let skuAttr = '';
                 this.sku.skuAttr.map(item => {
-                    skuAttr = `${skuAttr}${item.attrName}：${item.attrValue} ；`;
+                    skuAttr = `${skuAttr}${item.attrName}：${item.attrValue}；`;
                     return true;
                 });
-                skuAttr = skuAttr.substring(0, skuAttr.length - 2);
+                skuAttr = skuAttr.substring(0, skuAttr.length - 1);
                 const param = {
                     ...this.sku,
                     id: this.sku.skuId,
@@ -276,6 +277,7 @@
                 });
                 param.skuAttr = skuAttr;
                 param.priceList = priceList;
+                param.skuImg = param.skuImg.toString();
                 saveSku(param).then((res) => {
                     if (res.status == 200 && res.data > 0) {
                         this.$message({
@@ -320,6 +322,7 @@
                     this.priceList = [];
                 } else {
                     const skuAttr = [];
+                    
                     this.attrList.map(item => {
                         skuAttr.push({
                             attrName: item.attrName,
@@ -349,7 +352,7 @@
                 getSpuDetail(param).then((res) => {
                     if (res.status == 200) {
                         const tableData = res.data;
-                        tableData.skuDetailList.map(item => {
+                        tableData.skuDetailList && tableData.skuDetailList.map(item => {
                             const sku = item.priceList.find(price => price.promotionId == null && price.special == null);
                             item.skuAttr = [];
                             if (sku.skuAttr) {
@@ -361,7 +364,7 @@
                                     });
                                 });
                             }
-                            item.skuImg = sku.skuImg && sku.skuImg.split('；');
+                            item.skuImg = sku.skuImg && sku.skuImg.split(';');
                             item.skuId = sku.skuId;
                             item.retailPrice = sku.retailPrice;
                             item.minPrice = sku.minPrice;
@@ -370,9 +373,9 @@
                             item.skuCode = sku.skuCode;
                         });
                         this.$set(this, 'tableData', res.data);
-                        if (this.tableData.spuSearchVO.spuAttr) {
-                            const attrList = this.tableData.spuSearchVO.spuAttr.split('；');
-                            attrList.map(item => {
+                        if (this.tableData.spuSearchVO.size) {
+                            const attrList = this.tableData.spuSearchVO.size.split('；');
+                            this.attrList.length === 0 && attrList.map(item => {
                                 const attr = item.split('：');
                                 const attrValue = attr[1].split('、');
                                 this.attrList.push({
